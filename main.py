@@ -1,6 +1,8 @@
 import websockets
 import asyncio
 import configparser
+import json
+from src.procesamiento import Procesamiento
 
 PORT = 4700
 connected = set()
@@ -10,9 +12,11 @@ async def echo(websocket):
     connected.add(websocket)
     try:
         async for message in websocket:
-            print(f"Incomming: {message}")
+            result = Procesamiento.clasificacion(message)
+            print("Respondiendo", result)
 
-            await websocket.send(f"Servidor responde a ti: {message}")
+            # Respuesta a Usuario
+            await websocket.send(json.dumps(result))
 
             # for conn in connected:
             #     if conn != websocket:

@@ -8,6 +8,7 @@ API_URL = "https://localhostr/api/recibir-resultados"
 AUTH_TOKEN = "TuTokenSeguro"
 
 def ejecutar_comando(comando):
+    print("[*] Ejecutando comando", comando)
     try:
         resultado = subprocess.run(
             comando,
@@ -17,6 +18,7 @@ def ejecutar_comando(comando):
             text=True,
             timeout=30  # segundos
         )
+        print("[=] Resultado", resultado)
         return {
             "stdout": resultado.stdout,
             "stderr": resultado.stderr,
