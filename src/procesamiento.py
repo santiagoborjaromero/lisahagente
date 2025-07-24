@@ -59,6 +59,7 @@ class Procesamiento:
                 {"id": "uptime", "cmd":'sec=$(( $(date +%s) - $(date -d "$(ps -p 1 -o lstart=)" +%s) )); d=$((sec/86400)); h=$(( (sec%86400)/3600 )); m=$(( (sec%3600)/60 )); s=$((sec%60)); printf "%02d:%02d:%02d:%02d\n" $d $h $m $s'},
                 {"id": "servicio_httpd", "cmd":"systemctl is-active httpd"},
                 {"id": "servicio_ssh", "cmd":"systemctl is-active sshd"},
+                {"id": "release", "cmd":"cat /etc/os-release"},
             ]
 
             response = {
