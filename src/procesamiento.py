@@ -42,14 +42,46 @@ class Procesamiento:
                     "cmd": r["cmd"],
                     "respuesta": respuesta,    
                 })
-
-                # data_response.append({
-                #     id: r["id"],
-                #     cmd: r["cmd"],
-                #     respuesta: respuesta,
-                # })
+            return response
+        elif (request["action"] == "lista_servicios"):
+           
             
-            # response["data"] = data_response
+            rsp = ejecutar_comando('''
+            {
+                systemctl list-unit-files --type=service --no-legend | \
+                awk '$1 ~ /\.service$/ && $1 !~ /@/  {print $1}' | \
+                while read servicio; do
+                    descripcion=$(systemctl show -p Description --value "$servicio" 2>/dev/null | sed 's/,/;/g' || echo "Sin descripción")
+                    loaded=$(systemctl is-enabled "$servicio" 2>/dev/null || echo "disabled")
+                    active=$(systemctl is-active "$servicio" 2>/dev/null | awk '{print $1}' ||  echo "inactive")
+                    printf '%s,%s,%s,%s|' "$servicio" "$descripcion" "$loaded" "$active"
+                done
+            } 
+            ''')
+
+
+            salida = rsp["stdout"].strip()
+            servicios = [s for s in salida.split('|') if s.strip()]
+            ac = ""
+            for s in servicios:
+                try:
+                    servicio, descripcion, loaded, active = s.split(',', 3)
+                    # if (loaded=="disabled" or loaded=="enabled"):
+                    ac = ac + f"{servicio},{descripcion},{loaded},{active}|"
+                except Exception as e:
+                    print(f"Error parseando: {s} -> {e}")
+
+            response = {
+                "action": request["action"],
+                "identificador": request["identificador"],
+                "data":  [{
+                    "id": request["action"],
+                    "respuesta": ac
+                }]  
+            }
+            
+            print(response)
+
             return response
         elif (request["action"] == "stats"):
             comandos = [
@@ -65,7 +97,6 @@ class Procesamiento:
             response = {
                 "action": request["action"],
                 "identificador": request["identificador"],
-                "referencia": request["referencia"],
                 "data": []
             }
 
