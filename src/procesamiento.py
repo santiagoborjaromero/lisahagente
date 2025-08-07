@@ -44,7 +44,6 @@ class Procesamiento:
                 })
             return response
         elif (request["action"] == "lista_servicios"):
-           
             
             rsp = ejecutar_comando('''
             {
@@ -59,6 +58,7 @@ class Procesamiento:
             } 
             ''')
 
+            print(response)
 
             salida = rsp["stdout"].strip()
             servicios = [s for s in salida.split('|') if s.strip()]
@@ -66,7 +66,6 @@ class Procesamiento:
             for s in servicios:
                 try:
                     servicio, descripcion, loaded, active = s.split(',', 3)
-                    # if (loaded=="disabled" or loaded=="enabled"):
                     ac = ac + f"{servicio},{descripcion},{loaded},{active}|"
                 except Exception as e:
                     print(f"Error parseando: {s} -> {e}")
