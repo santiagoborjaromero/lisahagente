@@ -2,14 +2,16 @@
 import threading
 # import subprocess
 from src.entities.request import Request, Data
-from src.cmds import ejecutar_comando
+from src.cmds import ejecutar_comando, enviar_resultado
 import json
 
 class Procesamiento:
+    
+
     def bloque(data):
         print(data)
 
-    def clasificacion(info: Request):
+    def clasificacion(info: Request, token:str):
         request = json.loads(info)
 
         if (request["action"] == "comando"):
@@ -20,14 +22,14 @@ class Procesamiento:
                 "identificador": request["identificador"],
                 "data": []
             }
-            print(response)
+            # print(response)
 
             data_response = []
 
             for r in data:
                 resp = ejecutar_comando(r["cmd"])
 
-                print(resp)
+                # print(resp)
 
                 respuesta = resp["stderr"]
 
@@ -35,13 +37,14 @@ class Procesamiento:
                     respuesta = resp["stdout"]
                     # respuesta = string.replace("\n", "", respuesta)
                 
-                print("█", respuesta)
+                # print("█", respuesta)
 
                 response["data"].append({
                     "id": r["id"],
                     "cmd": r["cmd"],
                     "respuesta": respuesta,    
                 })
+            enviar_resultado(response, token)
             return response
         elif (request["action"] == "lista_servicios"):
             
@@ -57,8 +60,6 @@ class Procesamiento:
                 done
             } 
             ''')
-
-            print(response)
 
             salida = rsp["stdout"].strip()
             servicios = [s for s in salida.split('|') if s.strip()]
@@ -79,8 +80,10 @@ class Procesamiento:
                 }]  
             }
             
-            print(response)
+            # print(response)
 
+
+            # enviar_resultado(response)
             return response
         elif (request["action"] == "stats"):
             comandos = [
@@ -108,6 +111,7 @@ class Procesamiento:
                     "respuesta": respuesta,    
                 })
 
-
+        # enviar_resultado(response)
         return response
 
+        

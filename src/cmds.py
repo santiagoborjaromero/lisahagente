@@ -4,9 +4,6 @@ import json
 import sys
 import time
 
-API_URL = "https://localhostr/api/recibir-resultados"
-AUTH_TOKEN = "TuTokenSeguro"
-
 def ejecutar_comando(comando):
     # print("[*] Ejecutando comando", comando)
     try:
@@ -31,28 +28,16 @@ def ejecutar_comando(comando):
             "returncode": -1
         }
 
-def enviar_resultado(comando, resultado):
-    payload = {
-        "comando": comando,
-        "resultado": resultado
-    }
-    headers = {
-        "Authorization": f"Bearer {AUTH_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    try:
-        requests.post(API_URL, data=json.dumps(payload), headers=headers)
-    except Exception as e:
-        print(f"[ERROR] No se pudo enviar el resultado: {e}")
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Uso: python3 ejecutor.py 'comando_a_ejecutar'")
-        sys.exit(1)
-
-    comando = sys.argv[1]
-    print(f"Ejecutando: {comando}")
-    resultado = ejecutar_comando(comando)
-    print(resultado)
-    # print("Resultado:", resultado)
-    # enviar_resultado(comando, resultado)
+def enviar_resultado(resultado, token):
+        # print("**************** PARAMS *******************")
+        # print(resultado)
+        print("**************** ENVIANDO *******************")
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        try:
+            respuesta = requests.post("http://172.20.0.5:5000/api/v1/savecmd/", json=resultado, headers=headers)
+            print(respuesta)
+        except Exception as e:
+            print(f"[ERROR] No se pudo enviar el resultado: {e}")
