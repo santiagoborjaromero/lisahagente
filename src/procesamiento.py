@@ -3,6 +3,7 @@ import threading
 # import subprocess
 from src.entities.request import Request, Data
 from src.cmds import ejecutar_comando, enviar_resultado
+from src.encrypt import encrypt
 import json
 
 class Procesamiento:
@@ -22,27 +23,20 @@ class Procesamiento:
                 "identificador": request["identificador"],
                 "data": []
             }
-            # print(response)
-
             data_response = []
 
             for r in data:
                 resp = ejecutar_comando(r["cmd"])
 
-                # print(resp)
-
                 respuesta = resp["stderr"]
 
                 if resp["stderr"] == "":
                     respuesta = resp["stdout"]
-                    # respuesta = string.replace("\n", "", respuesta)
-                
-                # print("█", respuesta)
 
                 response["data"].append({
                     "id": r["id"],
-                    "cmd": r["cmd"],
-                    "respuesta": respuesta,    
+                    "cmd": encrypt(r["cmd"]),
+                    "respuesta": encrypt(respuesta),
                 })
             enviar_resultado(response, token)
             return response
@@ -76,7 +70,7 @@ class Procesamiento:
                 "identificador": request["identificador"],
                 "data":  [{
                     "id": request["action"],
-                    "respuesta": ac
+                    "respuesta": encrypt(ac)
                 }]  
             }
             
@@ -108,7 +102,7 @@ class Procesamiento:
                 response["data"].append({
                     "id": r["id"],
                     # "cmd": r["cmd"],
-                    "respuesta": respuesta,    
+                    "respuesta": encrypt(respuesta),
                 })
 
         # enviar_resultado(response)
