@@ -4,6 +4,8 @@ import json
 import sys
 import time
 import base64
+import configparser
+import os
 
 def ejecutar_comando(comando):
     # print("[*] Ejecutando comando", comando)
@@ -30,21 +32,28 @@ def ejecutar_comando(comando):
         }
 
 def enviar_resultado(resultado, token):
-        # print("**************** PARAMS *******************")
-        # print(resultado)
-        print("**************** ENVIANDO *******************")
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
+  config = configparser.ConfigParser()
+  current_directory = os.getcwd()
 
-        # resultado_string_bytes = resultado[].encode("ascii")
-        # base64_bytes = base64.b64encode(resultado_string_bytes)
-        # resultadoB64 = base64_bytes.decode("ascii")
-        # print(resultadoB64)
+  file_ini = f"{current_directory}/sentinel.ini"
+  endpoint = ""
 
-        try:
-            respuesta = requests.post("http://172.20.0.3:5000/api/v1/savecmd/", json=resultado, headers=headers)
-            print(respuesta)
-        except Exception as e:
-            print(f"[ERROR] No se pudo enviar el resultado: {e}")
+  if os.path.exists(file_ini):
+    config.read(file_ini)
+    endpoint = config.get("API", "endpoint")
+    print(endpoint)
+  else:
+    print("The file does not exist.")
+    return
+
+  print("**************** ENVIANDO *******************")
+  headers = {
+      "Authorization": f"Bearer {token}",
+      "Content-Type": "application/json"
+  }
+
+  try:
+      respuesta = requests.post(f"{endpoint}/api/v1/savecmd/", json=resultado, headers=headers)
+      print(respuesta)
+  except Exception as e:
+      print(f"[ERROR] No se pudo enviar el resultado: {e}")

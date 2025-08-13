@@ -9,7 +9,6 @@ from concurrent.futures import thread
 import threading
 
 class Procesamiento:
-    
 
     def bloque(data):
         print(data)
