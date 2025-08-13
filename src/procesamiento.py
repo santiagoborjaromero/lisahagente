@@ -5,6 +5,8 @@ from src.entities.request import Request, Data
 from src.cmds import ejecutar_comando, enviar_resultado
 from src.encrypt import encrypt
 import json
+from concurrent.futures import thread
+import threading
 
 class Procesamiento:
     
@@ -28,17 +30,37 @@ class Procesamiento:
             for r in data:
                 resp = ejecutar_comando(r["cmd"])
 
-                respuesta = resp["stderr"]
+                # respuesta = resp["stderr"]
+                respuesta_original = ""
 
                 if resp["stderr"] == "":
-                    respuesta = resp["stdout"]
+                    respuesta_original = resp["stdout"]
+                else:
+                    respuesta_original = resp["stderr"]
+                
+                print(respuesta_original)
+                
+                try:
+                    # respuesta = respuesta_original.encode("ascii").decode('unicode-escape')
+                    respuesta = respuesta_original.encode("ascii", "replace")
+                    respuesta = respuesta.decode(encoding="utf-8", errors="ignore")
+                #     respuesta = str(respuesta).encode("utf-8")
+                #     respuesta = respuesta.replace(u"\u2022", "")
+                #     respuesta = respuesta.replace(u"\u25cf", "")
+                #     respuesta = respuesta.decode("utf-8")
+                except Exception as err:
+                    print(err)
+                    respuesta = respuesta_original
 
                 response["data"].append({
                     "id": r["id"],
                     "cmd": encrypt(r["cmd"]),
                     "respuesta": encrypt(respuesta),
                 })
-            enviar_resultado(response, token)
+            # enviar_resultado(response, token)
+            thread = threading.Thread(target=enviar_resultado, args=(response,token,))
+            thread.start()
+            
             return response
         elif (request["action"] == "lista_servicios"):
             
