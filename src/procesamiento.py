@@ -1,8 +1,6 @@
-# from concurrent.futures import thread
 import threading
-# import subprocess
 from src.entities.request import Request, Data
-from src.cmds import ejecutar_comando, enviar_resultado
+from src.cmds import ejecutar_comando, enviar_resultado, saveLog
 from src.encrypt import encrypt
 import json
 from concurrent.futures import thread
@@ -15,6 +13,7 @@ class Procesamiento:
 
     def clasificacion(info: Request, token:str):
         request = json.loads(info)
+        saveLog(json.dumps(request), "JSON")
 
         if (request["action"] == "comando"):
             data = request["data"]
@@ -24,29 +23,32 @@ class Procesamiento:
                 "identificador": request["identificador"],
                 "data": []
             }
+
+            identificador = request["identificador"]
+            idtransaccion = identificador["id"]
+            idusuario = identificador["idusuario"]
+
             data_response = []
 
             for r in data:
-                resp = ejecutar_comando(r["cmd"])
 
-                # respuesta = resp["stderr"]
+                comando = r["cmd"]
+                ref =  r["id"]
+                resp = ejecutar_comando(comando)
+
                 respuesta_original = ""
 
                 if resp["stderr"] == "":
                     respuesta_original = resp["stdout"]
+                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando}", "INFO")
                 else:
                     respuesta_original = resp["stderr"]
+                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
                 
-                print(respuesta_original)
                 
                 try:
-                    # respuesta = respuesta_original.encode("ascii").decode('unicode-escape')
                     respuesta = respuesta_original.encode("ascii", "replace")
                     respuesta = respuesta.decode(encoding="utf-8", errors="ignore")
-                #     respuesta = str(respuesta).encode("utf-8")
-                #     respuesta = respuesta.replace(u"\u2022", "")
-                #     respuesta = respuesta.replace(u"\u25cf", "")
-                #     respuesta = respuesta.decode("utf-8")
                 except Exception as err:
                     print(err)
                     respuesta = respuesta_original
@@ -56,7 +58,7 @@ class Procesamiento:
                     "cmd": encrypt(r["cmd"]),
                     "respuesta": encrypt(respuesta),
                 })
-            # enviar_resultado(response, token)
+
             thread = threading.Thread(target=enviar_resultado, args=(response,token,))
             thread.start()
             
