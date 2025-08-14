@@ -15,6 +15,10 @@ class Procesamiento:
         request = json.loads(info)
         saveLog(json.dumps(request), "JSON")
 
+        identificador = request["identificador"]
+        idtransaccion = identificador["id"]
+        idusuario = identificador["idusuario"]
+
         if (request["action"] == "comando"):
             data = request["data"]
             
@@ -23,10 +27,6 @@ class Procesamiento:
                 "identificador": request["identificador"],
                 "data": []
             }
-
-            identificador = request["identificador"]
-            idtransaccion = identificador["id"]
-            idusuario = identificador["idusuario"]
 
             data_response = []
 
@@ -120,11 +120,24 @@ class Procesamiento:
             }
 
             for r in comandos:
-                respuesta = ejecutar_comando(r["cmd"])
+                comando = r["cmd"]
+                ref =  r["id"]
+
+
+                resp = ejecutar_comando(comando)
+
+                if resp["stderr"] == "":
+                    respuesta = resp["stdout"]
+                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando}", "INFO")
+                else:
+                    respuesta = resp["stderr"]
+                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta}", "ERROR")
+                
+
                 print(respuesta)
                 response["data"].append({
                     "id": r["id"],
-                    # "cmd": r["cmd"],
+                    "cmd": encrypt(r["cmd"]),
                     "respuesta": encrypt(respuesta),
                 })
 
