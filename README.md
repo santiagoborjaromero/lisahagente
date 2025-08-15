@@ -2,7 +2,7 @@
 
 Lenguaje de Programación
 
-![](https://img.shields.io/badge/Python-3.12-blue)
+![](https://img.shields.io/badge/Python-3.9-blue)
 
 
 Modo de ejecucion

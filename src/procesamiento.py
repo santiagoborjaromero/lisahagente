@@ -15,16 +15,17 @@ class Procesamiento:
         request = json.loads(info)
         saveLog(json.dumps(request), "JSON")
 
+        action = request["action"]
         identificador = request["identificador"]
         idtransaccion = identificador["id"]
         idusuario = identificador["idusuario"]
 
-        if (request["action"] == "comando"):
+        if (action == "comando"):
             data = request["data"]
             
             response = {
-                "action": request["action"],
-                "identificador": request["identificador"],
+                "action": action,
+                "identificador": identificador,
                 "data": []
             }
 
@@ -63,9 +64,9 @@ class Procesamiento:
             thread.start()
             
             return response
-        elif (request["action"] == "lista_servicios"):
-            
-            rsp = ejecutar_comando('''
+        elif (action == "lista_servicios"):
+
+            cmd = '''
             {
                 systemctl list-unit-files --type=service --no-legend | \
                 awk '$1 ~ /\.service$/ && $1 !~ /@/  {print $1}' | \
@@ -76,7 +77,9 @@ class Procesamiento:
                     printf '%s,%s,%s,%s|' "$servicio" "$descripcion" "$loaded" "$active"
                 done
             } 
-            ''')
+            '''
+
+            rsp = ejecutar_comando(cmd)
 
             salida = rsp["stdout"].strip()
             servicios = [s for s in salida.split('|') if s.strip()]
@@ -88,21 +91,20 @@ class Procesamiento:
                 except Exception as e:
                     print(f"Error parseando: {s} -> {e}")
 
+            saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF= CMD={cmd}", "INFO")
+
             response = {
-                "action": request["action"],
-                "identificador": request["identificador"],
+                "action": action,
+                "identificador": identificador,
                 "data":  [{
-                    "id": request["action"],
+                    "id": action,
+                    "cmd": "",
                     "respuesta": encrypt(ac)
                 }]  
             }
             
-            # print(response)
-
-
-            # enviar_resultado(response)
             return response
-        elif (request["action"] == "stats"):
+        elif (action == "stats"):
             comandos = [
                 {"id": "disco", "cmd":" df -hT | grep -E 'ext4|xfs|btrfs' | awk '{print $3, $4, $5}'"},
                 {"id": "cpu", "cmd":"cat /proc/loadavg | awk '{print $1, $2, $3}'"},
