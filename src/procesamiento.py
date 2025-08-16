@@ -1,7 +1,7 @@
 import threading
 from src.entities.request import Request, Data
 from src.cmds import ejecutar_comando, enviar_resultado, saveLog
-from src.encrypt import encrypt
+from src.functions import encrypt
 import json
 from concurrent.futures import thread
 import threading
@@ -19,6 +19,7 @@ class Procesamiento:
         identificador = request["identificador"]
         idtransaccion = identificador["id"]
         idusuario = identificador["idusuario"]
+        usuario = identificador["usuario"]
 
         if (action == "comando"):
             data = request["data"]
@@ -35,7 +36,7 @@ class Procesamiento:
 
                 comando = r["cmd"]
                 ref =  r["id"]
-                resp = ejecutar_comando(comando)
+                resp = ejecutar_comando(comando, usuario)
 
                 respuesta_original = ""
 
@@ -124,7 +125,6 @@ class Procesamiento:
             for r in comandos:
                 comando = r["cmd"]
                 ref =  r["id"]
-
 
                 resp = ejecutar_comando(comando)
 

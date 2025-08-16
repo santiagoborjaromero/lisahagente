@@ -9,18 +9,21 @@ import os
 from datetime import  datetime
 
 
-def ejecutar_comando(comando):
-    # print("[*] Ejecutando comando", comando)
+def ejecutar_comando(comando, usuario="soft8"):
+    # newcomand = f"sudo -u {usuario} {comando}"
+    newcomand = comando
+    # print("comando", newcomand)
     try:
         resultado = subprocess.run(
-            comando,
+            newcomand,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            # check=True,
             timeout=30  # segundos
         )
-        # print("[=] Resultado", resultado)
+        print("[=] Resultado", resultado)
         return {
             "stdout": resultado.stdout,
             "stderr": resultado.stderr,
