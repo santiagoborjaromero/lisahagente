@@ -1,25 +1,33 @@
 import threading
 from src.entities.request import Request, Data
-from src.cmds import ejecutar_comando, enviar_resultado, saveLog
-from src.functions import encrypt
-import json
+from src.cmds import ejecutar_comando, enviar_resultado, saveLog, traer_logs
+from src.functions import encrypt, decrypt
 from concurrent.futures import thread
+import json
 import threading
 
 class Procesamiento:
 
-    def bloque(data):
-        print(data)
-
     def clasificacion(info: Request, token:str):
         request = json.loads(info)
-        saveLog(json.dumps(request), "JSON")
+        # saveLog(json.dumps(request), "JSON")
 
-        action = request["action"]
-        identificador = request["identificador"]
-        idtransaccion = identificador["id"]
-        idusuario = identificador["idusuario"]
-        usuario = identificador["usuario"]
+        descrypt_token  = json.loads(decrypt(token))
+
+        action          = request["action"]
+        identificador   = request["identificador"]
+        idtransaccion   = identificador["id"]
+        idusuario       = identificador["idusuario"]
+        idcliente       = identificador["idcliente"]
+        idservidor      = identificador["idservidor"]
+        usuario         = identificador["usuario"]
+
+        d_idusuario     = descrypt_token["idusuario"]
+        d_idcliente     = descrypt_token["idcliente"]
+
+        if d_idusuario != idusuario or d_idcliente != idcliente:
+            saveLog("ENTRADA NO AUTORIZADA", "AUTH")
+            return request
 
         if (action == "comando"):
             data = request["data"]
@@ -52,7 +60,7 @@ class Procesamiento:
                     respuesta = respuesta_original.encode("ascii", "replace")
                     respuesta = respuesta.decode(encoding="utf-8", errors="ignore")
                 except Exception as err:
-                    print(err)
+                    # print(err)
                     respuesta = respuesta_original
 
                 response["data"].append({
@@ -136,14 +144,18 @@ class Procesamiento:
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta}", "ERROR")
                 
 
-                print(respuesta)
+                # print(respuesta)
                 response["data"].append({
                     "id": r["id"],
                     "cmd": encrypt(r["cmd"]),
                     "respuesta": encrypt(respuesta),
                 })
 
-        # enviar_resultado(response)
+            enviar_resultado(response, token)
+        elif (action == "logs"):
+            response = traer_logs(idcliente, idservidor)
+            return response 
+
         return response
 
         
