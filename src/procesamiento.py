@@ -1,14 +1,15 @@
 import threading
 from src.entities.request import Request, Data
-from src.cmds import ejecutar_comando, enviar_resultado, saveLog, traer_logs
+from src.cmds import ejecutar_comando, enviar_resultado, saveLog, traer_logs, saveData
 from src.functions import encrypt, decrypt
 from concurrent.futures import thread
 import json
 import threading
+import asyncio
 
 class Procesamiento:
 
-    def clasificacion(info: Request, token:str):
+    async def clasificacion(info: Request, token:str):
         request = json.loads(info)
         # saveLog(json.dumps(request), "JSON")
 
@@ -50,7 +51,6 @@ class Procesamiento:
 
                 if resp["stderr"] == "":
                     respuesta_original = resp["stdout"]
-                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando}", "INFO")
                 else:
                     respuesta_original = resp["stderr"]
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
@@ -69,9 +69,8 @@ class Procesamiento:
                     "respuesta": encrypt(respuesta),
                 })
 
-            thread = threading.Thread(target=enviar_resultado, args=(response,token,))
-            thread.start()
-            
+            # enviar_resultado(response,token)
+            saveData(response)
             return response
         elif (action == "lista_servicios"):
 
@@ -89,18 +88,20 @@ class Procesamiento:
             '''
 
             rsp = ejecutar_comando(cmd)
-
-            salida = rsp["stdout"].strip()
-            servicios = [s for s in salida.split('|') if s.strip()]
-            ac = ""
-            for s in servicios:
-                try:
-                    servicio, descripcion, loaded, active = s.split(',', 3)
-                    ac = ac + f"{servicio},{descripcion},{loaded},{active}|"
-                except Exception as e:
-                    print(f"Error parseando: {s} -> {e}")
-
-            saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF= CMD={cmd}", "INFO")
+            if rsp["stderr"] == "":
+                salida = rsp["stdout"].strip()
+                servicios = [s for s in salida.split('|') if s.strip()]
+                ac = ""
+                for s in servicios:
+                    try:
+                        servicio, descripcion, loaded, active = s.split(',', 3)
+                        ac = ac + f"{servicio},{descripcion},{loaded},{active}|"
+                    except Exception as e:
+                        saveLog(f"Error parseando: {s} -> {e}", "ERROR")
+                        print(f"Error parseando: {s} -> {e}")
+            else:
+                respuesta_error = rsp["stderr"]
+                saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_error}", "ERROR")
 
             response = {
                 "action": action,
@@ -111,7 +112,7 @@ class Procesamiento:
                     "respuesta": encrypt(ac)
                 }]  
             }
-            
+            saveData(response)
             return response
         elif (action == "stats"):
             comandos = [
@@ -138,7 +139,6 @@ class Procesamiento:
 
                 if resp["stderr"] == "":
                     respuesta = resp["stdout"]
-                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando}", "INFO")
                 else:
                     respuesta = resp["stderr"]
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta}", "ERROR")
@@ -151,9 +151,13 @@ class Procesamiento:
                     "respuesta": encrypt(respuesta),
                 })
 
-            enviar_resultado(response, token)
+            # enviar_resultado(response, token)
+            saveData(response)
+            return response
         elif (action == "logs"):
-            response = traer_logs(idcliente, idservidor)
+            # response = await traer_logs(idcliente, idservidor)
+            fecha = identificador["fecha"]
+            response = traer_logs(idcliente, idservidor, fecha)
             return response 
 
         return response

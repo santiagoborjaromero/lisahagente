@@ -21,7 +21,7 @@ async def websocket_endpoint(websocket: WebSocket, token:str):
         try:
             while True:
                 data = await websocket.receive_text()
-                result = Procesamiento.clasificacion(data, token)
+                result = await Procesamiento.clasificacion(data, token)
                 await websocket.send_text(json.dumps(result))
 
         except WebSocketDisconnect:

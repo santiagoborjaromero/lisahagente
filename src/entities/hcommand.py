@@ -1,6 +1,5 @@
 from typing import Optional
 from pydantic import BaseModel, Field, field_serializer, PydanticUserError
-from src.database import conn 
 
 try:
     class HCommand(BaseModel):

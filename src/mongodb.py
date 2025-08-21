@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import asyncio
 
-HOST="172.20.0.3"
+HOST="localhost"
 PORT=27017
 USER="lisahadmin"
 CLS="L1s4hUn14nd3s"
