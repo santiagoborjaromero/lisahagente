@@ -53,8 +53,8 @@ class Procesamiento:
                     respuesta_original = resp["stdout"]
                 else:
                     respuesta_original = resp["stderr"]
+                    print("ERROR", resp["stderr"])
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
-                
                 
                 try:
                     respuesta = respuesta_original.encode("ascii", "replace")
