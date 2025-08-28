@@ -8,7 +8,7 @@ import configparser
 import os
 from datetime import datetime
 from src.entities.hcommand import HCommand
-from src.mongodb import db
+# from src.mongodb import db
 # from src.postgresql import conn
 
 def ejecutar_comando(comando, usuario="soft8"):
