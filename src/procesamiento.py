@@ -6,6 +6,7 @@ from concurrent.futures import thread
 import json
 import threading
 import asyncio
+from datetime import datetime
 
 class Procesamiento:
 
@@ -161,8 +162,15 @@ class Procesamiento:
             return response 
         elif (action == "statserver"):
             fecha = identificador["fecha"]
-            response = statsServer(idcliente, idservidor, idusuario, fecha)
-            return response 
+            result = statsServer(idcliente, idservidor, idusuario, fecha)
+            response = {
+                "action": request["action"],
+                "identificador": request["identificador"],
+                "data": result,
+                "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            saveLog(json.dumps(response), "statserver")
+            return response
 
         return response
 
