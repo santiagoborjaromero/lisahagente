@@ -129,6 +129,56 @@ def traer_logs(idcliente, idservidor, fecha):
   return {"status": status, "data": data}
 
 
+
+
+def statsServer(idcliente, idservidor, idusuario, fecha):
+
+  print(idcliente, idservidor, fecha)
+
+  config = configparser.ConfigParser()
+  current_directory = os.getcwd()
+  file_ini = f"{current_directory}/sentinel.ini"
+
+  path_folder_log = ""
+
+  if os.path.exists(file_ini):
+    config.read(file_ini)
+    path_folder_log = config.get("APP", "logs")
+  else:
+    print("The file does not exist.")
+    return
+
+  # fecha_file =  datetime.now().strftime("%Y%m%d")
+  fecha_file =  fecha.replace("-", "")
+
+  contenido = os.listdir(path_folder_log)
+
+  data = []
+  datatemp = []
+  status = True
+
+  try:
+    for fichero in contenido:
+      if os.path.isfile(os.path.join(path_folder_log, fichero)) and fichero.endswith('.lisah'):
+        if fecha_file in fichero:
+          print(f"Abriendo {fichero}")
+          with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
+            for linea in archivo:
+              datatemp.append( json.loads( base64.b64decode(linea) ) )
+  except Exception as err:
+    status = False
+    data = []
+
+  count = 0
+  for linea in datatemp:
+    if linea["idusuario"] == idusuario:
+      count = count + 1
+
+  data = []
+
+  return {"status": status, "data": count}
+
+
 #
 # MONGO
 #

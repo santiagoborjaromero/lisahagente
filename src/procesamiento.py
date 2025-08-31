@@ -1,6 +1,6 @@
 import threading
 from src.entities.request import Request, Data
-from src.cmds import ejecutar_comando, enviar_resultado, saveLog, traer_logs, saveData
+from src.cmds import ejecutar_comando, enviar_resultado, saveLog, traer_logs, saveData, statsServer
 from src.functions import encrypt, decrypt
 from concurrent.futures import thread
 import json
@@ -158,6 +158,10 @@ class Procesamiento:
             # response = await traer_logs(idcliente, idservidor)
             fecha = identificador["fecha"]
             response = traer_logs(idcliente, idservidor, fecha)
+            return response 
+        elif (action == "statserver"):
+            fecha = identificador["fecha"]
+            response = statsServer(idcliente, idservidor, idusuario, fecha)
             return response 
 
         return response

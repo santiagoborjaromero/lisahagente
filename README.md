@@ -8,6 +8,7 @@ Lenguaje de Programación
 Modo de ejecucion
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 4700
+fastapi main.py --port 5000
 ```
 
 
