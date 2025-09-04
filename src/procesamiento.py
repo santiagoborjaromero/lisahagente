@@ -48,6 +48,7 @@ class Procesamiento:
                 ref =  r["id"]
 
                 resp = ejecutar_comando(comando, usuario)
+                saveLog(json.dumps(resp), "comando")
                 # saveLog(resp, "RESPUESTA")
 
                 respuesta_original = ""
