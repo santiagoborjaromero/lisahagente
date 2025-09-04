@@ -48,17 +48,11 @@ class Procesamiento:
                 ref =  r["id"]
 
                 resp = ejecutar_comando(comando, usuario)
-                saveLog(json.dumps(resp), "comando")
-                # saveLog(resp, "RESPUESTA")
 
                 respuesta_original = ""
 
                 if resp["stderr"] == "":
                     respuesta_original = resp["stdout"]
-                    # if (resp["stdout"] != "")
-                    #     respuesta_original = resp["stdout"]
-                    # else:
-                    #     respuesta_original = resp
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "DEBUG")
                 else:
                     respuesta_original = resp["stderr"]
@@ -74,6 +68,7 @@ class Procesamiento:
                 })
 
             saveData(response)
+            saveLog(json.dumps(response), "comando")
             return response
         # elif (action == "lista_servicios"):
 
