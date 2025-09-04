@@ -54,7 +54,7 @@ class Procesamiento:
                 respuesta_original = ""
 
                 if resp["stderr"] == "":
-                    respuesta_original = resp
+                    respuesta_original = resp["stdout"]
                     # if (resp["stdout"] != "")
                     #     respuesta_original = resp["stdout"]
                     # else:
