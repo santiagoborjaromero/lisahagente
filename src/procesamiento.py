@@ -46,6 +46,7 @@ class Procesamiento:
 
                 comando = r["cmd"]
                 ref =  r["id"]
+
                 resp = ejecutar_comando(comando, usuario)
 
                 respuesta_original = ""
@@ -57,17 +58,15 @@ class Procesamiento:
                     print("ERROR", resp["stderr"])
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
                 
-                try:
-                    respuesta = respuesta_original.encode("ascii", "replace")
-                    respuesta = respuesta.decode(encoding="utf-8", errors="ignore")
-                except Exception as err:
-                    # print(err)
-                    respuesta = respuesta_original
+                # print(comando)
+                # print(respuesta_original)
+                respuesta = encrypt(respuesta_original)
+                # print(respuesta)
 
                 response["data"].append({
                     "id": r["id"],
                     "cmd": encrypt(r["cmd"]),
-                    "respuesta": encrypt(respuesta),
+                    "respuesta": respuesta,
                 })
 
             # enviar_resultado(response,token)

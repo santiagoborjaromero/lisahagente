@@ -13,7 +13,7 @@ from src.entities.hcommand import HCommand
 
 def ejecutar_comando(comando, usuario="soft8"):
   # newcomand = f"sudo -u {usuario} {comando}"
-  newcomand = comando
+  newcomand = f"sudo {comando}"
   # print("comando", newcomand)
   try:
     resultado = subprocess.run(
