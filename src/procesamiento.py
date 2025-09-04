@@ -53,10 +53,11 @@ class Procesamiento:
                 respuesta_original = ""
 
                 if resp["stderr"] == "":
-                    if (resp["stdout"] != "")
-                        respuesta_original = resp["stdout"]
-                    else:
-                        respuesta_original = resp
+                    respuesta_original = resp
+                    # if (resp["stdout"] != "")
+                    #     respuesta_original = resp["stdout"]
+                    # else:
+                    #     respuesta_original = resp
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "DEBUG")
                 else:
                     respuesta_original = resp["stderr"]
