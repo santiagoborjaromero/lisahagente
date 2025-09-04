@@ -72,48 +72,48 @@ class Procesamiento:
             # enviar_resultado(response,token)
             saveData(response)
             return response
-        elif (action == "lista_servicios"):
+        # elif (action == "lista_servicios"):
 
-            cmd = '''
-            {
-                systemctl list-unit-files --type=service --no-legend | \
-                awk '$1 ~ /\.service$/ && $1 !~ /@/  {print $1}' | \
-                while read servicio; do
-                    descripcion=$(systemctl show -p Description --value "$servicio" 2>/dev/null | sed 's/,/;/g' || echo "Sin descripción")
-                    loaded=$(systemctl is-enabled "$servicio" 2>/dev/null || echo "disabled")
-                    active=$(systemctl is-active "$servicio" 2>/dev/null | awk '{print $1}' ||  echo "inactive")
-                    printf '%s,%s,%s,%s|' "$servicio" "$descripcion" "$loaded" "$active"
-                done
-            } 
-            '''
+        #     cmd = '''
+        #     {
+        #         systemctl list-unit-files --type=service --no-legend | \
+        #         awk '$1 ~ /\.service$/ && $1 !~ /@/  {print $1}' | \
+        #         while read servicio; do
+        #             descripcion=$(systemctl show -p Description --value "$servicio" 2>/dev/null | sed 's/,/;/g' || echo "Sin descripción")
+        #             loaded=$(systemctl is-enabled "$servicio" 2>/dev/null || echo "disabled")
+        #             active=$(systemctl is-active "$servicio" 2>/dev/null | awk '{print $1}' ||  echo "inactive")
+        #             printf '%s,%s,%s,%s|' "$servicio" "$descripcion" "$loaded" "$active"
+        #         done
+        #     } 
+        #     '''
 
-            rsp = ejecutar_comando(cmd)
-            if rsp["stderr"] == "":
-                salida = rsp["stdout"].strip()
-                servicios = [s for s in salida.split('|') if s.strip()]
-                ac = ""
-                for s in servicios:
-                    try:
-                        servicio, descripcion, loaded, active = s.split(',', 3)
-                        ac = ac + f"{servicio},{descripcion},{loaded},{active}|"
-                    except Exception as e:
-                        saveLog(f"Error parseando: {s} -> {e}", "ERROR")
-                        print(f"Error parseando: {s} -> {e}")
-            else:
-                respuesta_error = rsp["stderr"]
-                saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_error}", "ERROR")
+        #     rsp = ejecutar_comando(cmd)
+        #     if rsp["stderr"] == "":
+        #         salida = rsp["stdout"].strip()
+        #         servicios = [s for s in salida.split('|') if s.strip()]
+        #         ac = ""
+        #         for s in servicios:
+        #             try:
+        #                 servicio, descripcion, loaded, active = s.split(',', 3)
+        #                 ac = ac + f"{servicio},{descripcion},{loaded},{active}|"
+        #             except Exception as e:
+        #                 saveLog(f"Error parseando: {s} -> {e}", "ERROR")
+        #                 print(f"Error parseando: {s} -> {e}")
+        #     else:
+        #         respuesta_error = rsp["stderr"]
+        #         saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_error}", "ERROR")
 
-            response = {
-                "action": action,
-                "identificador": identificador,
-                "data":  [{
-                    "id": action,
-                    "cmd": "",
-                    "respuesta": encrypt(ac)
-                }]  
-            }
-            saveData(response)
-            return response
+        #     response = {
+        #         "action": action,
+        #         "identificador": identificador,
+        #         "data":  [{
+        #             "id": action,
+        #             "cmd": "",
+        #             "respuesta": encrypt(ac)
+        #         }]  
+        #     }
+        #     saveData(response)
+        #     return response
         elif (action == "stats"):
             comandos = [
                 {"id": "disco", "cmd":" df -hT | grep -E 'ext4|xfs|btrfs' | awk '{print $3, $4, $5}'"},
