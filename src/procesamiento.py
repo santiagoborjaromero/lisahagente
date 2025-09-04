@@ -48,7 +48,7 @@ class Procesamiento:
                 ref =  r["id"]
 
                 resp = ejecutar_comando(comando, usuario)
-                saveLog(resp, "RESPUESTA")
+                # saveLog(resp, "RESPUESTA")
 
                 respuesta_original = ""
 
