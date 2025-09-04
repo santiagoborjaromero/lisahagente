@@ -37,7 +37,8 @@ class Procesamiento:
             response = {
                 "action": action,
                 "identificador": identificador,
-                "data": []
+                "data": [],
+                "status": False
             }
 
             data_response = []
@@ -52,9 +53,11 @@ class Procesamiento:
                 respuesta_original = ""
 
                 if resp["stderr"] == "":
+                    response["status"] = True
                     respuesta_original = resp["stdout"]
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "DEBUG")
                 else:
+                    response["status"] = False
                     respuesta_original = resp["stderr"]
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
                     print("ERROR", resp["stderr"])
@@ -68,7 +71,7 @@ class Procesamiento:
                 })
 
             saveData(response)
-            saveLog(json.dumps(response), "comando")
+            # saveLog(json.dumps(response), "comando")
             return response
         # elif (action == "lista_servicios"):
 
