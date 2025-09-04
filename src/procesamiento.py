@@ -56,7 +56,8 @@ class Procesamiento:
                 else:
                     respuesta_original = resp["stderr"]
                     print("ERROR", resp["stderr"])
-                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
+                
+                saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
                 
                 # print(comando)
                 # print(respuesta_original)
