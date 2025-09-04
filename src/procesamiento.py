@@ -152,12 +152,15 @@ class Procesamiento:
                 })
 
             # enviar_resultado(response, token)
+            saveLog(json.dumps(response), "stats")
             saveData(response)
             return response
         elif (action == "logs"):
             # response = await traer_logs(idcliente, idservidor)
             fecha = identificador["fecha"]
             response = traer_logs(idcliente, idservidor, fecha)
+            saveLog(json.dumps(response), "logs")
+            saveData(response)
             return response 
         elif (action == "statserver"):
             fecha = identificador["fecha"]
@@ -169,6 +172,7 @@ class Procesamiento:
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             saveLog(json.dumps(response), "statserver")
+            saveData(response)
             return response
 
         return response
