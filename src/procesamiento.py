@@ -59,11 +59,7 @@ class Procesamiento:
                     saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta_original}", "ERROR")
                     print("ERROR", resp["stderr"])
                 
-                
-                # print(comando)
-                # print(respuesta_original)
                 respuesta = encrypt(respuesta_original)
-                # print(respuesta)
 
                 response["data"].append({
                     "id": r["id"],
@@ -71,7 +67,6 @@ class Procesamiento:
                     "respuesta": respuesta,
                 })
 
-            # enviar_resultado(response,token)
             saveData(response)
             return response
         # elif (action == "lista_servicios"):
