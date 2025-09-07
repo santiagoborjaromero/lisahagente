@@ -17,6 +17,7 @@ class Procesamiento:
         descrypt_token  = json.loads(decrypt(token))
 
         action          = request["action"]
+        print("Accion=", action)
         identificador   = request["identificador"]
         idtransaccion   = identificador["id"]
         idusuario       = identificador["idusuario"]
@@ -73,65 +74,74 @@ class Procesamiento:
             saveData(response)
             # saveLog(json.dumps(response), "comando")
             return response
-        elif (action == "stats"):
-            comandos = [
-                {"id": "disco", "cmd":" df -hT | grep -E 'ext4|xfs|btrfs' | awk '{print $3, $4, $5}'"},
-                {"id": "cpu", "cmd":"cat /proc/loadavg | awk '{print $1, $2, $3}'"},
-                {"id": "memoria", "cmd":"free -h | grep -E 'Mem' | awk '{print $2, $3, $4}'"},
-                {"id": "uptime", "cmd":'sec=$(( $(date +%s) - $(date -d "$(ps -p 1 -o lstart=)" +%s) )); d=$((sec/86400)); h=$(( (sec%86400)/3600 )); m=$(( (sec%3600)/60 )); s=$((sec%60)); printf "%02d:%02d:%02d:%02d\n" $d $h $m $s'},
-                {"id": "servicio_httpd", "cmd":"systemctl is-active httpd"},
-                {"id": "servicio_ssh", "cmd":"systemctl is-active sshd"},
-                {"id": "release", "cmd":"cat /etc/os-release"},
-            ]
+        # elif (action == "stats"):
+        #     comandos = [
+        #         {"id": "disco", "cmd":" df -hT | grep -E 'ext4|xfs|btrfs' | awk '{print $3, $4, $5}'"},
+        #         {"id": "cpu", "cmd":"cat /proc/loadavg | awk '{print $1, $2, $3}'"},
+        #         {"id": "memoria", "cmd":"free -h | grep -E 'Mem' | awk '{print $2, $3, $4}'"},
+        #         {"id": "uptime", "cmd":'sec=$(( $(date +%s) - $(date -d "$(ps -p 1 -o lstart=)" +%s) )); d=$((sec/86400)); h=$(( (sec%86400)/3600 )); m=$(( (sec%3600)/60 )); s=$((sec%60)); printf "%02d:%02d:%02d:%02d\n" $d $h $m $s'},
+        #         {"id": "servicio_httpd", "cmd":"systemctl is-active httpd"},
+        #         {"id": "servicio_ssh", "cmd":"systemctl is-active sshd"},
+        #         {"id": "release", "cmd":"cat /etc/os-release"},
+        #     ]
 
-            response = {
-                "action": request["action"],
-                "identificador": request["identificador"],
-                "data": []
-            }
+        #     response = {
+        #         "action": request["action"],
+        #         "identificador": request["identificador"],
+        #         "data": []
+        #     }
 
-            for r in comandos:
-                comando = r["cmd"]
-                ref =  r["id"]
+        #     for r in comandos:
+        #         comando = r["cmd"]
+        #         ref =  r["id"]
 
-                resp = ejecutar_comando(comando)
+        #         resp = ejecutar_comando(comando)
 
-                if resp["stderr"] == "":
-                    respuesta = resp["stdout"]
-                else:
-                    respuesta = resp["stderr"]
-                    saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta}", "ERROR")
+        #         if resp["stderr"] == "":
+        #             respuesta = resp["stdout"]
+        #         else:
+        #             respuesta = resp["stderr"]
+        #             saveLog(f"ID={idtransaccion} IDUSUARIO={idusuario} REF={ref} CMD={comando} RESPONSE={respuesta}", "ERROR")
                 
 
-                # print(respuesta)
-                response["data"].append({
-                    "id": r["id"],
-                    "cmd": encrypt(r["cmd"]),
-                    "respuesta": encrypt(respuesta),
-                })
+        #         # print(respuesta)
+        #         response["data"].append({
+        #             "id": r["id"],
+        #             "cmd": encrypt(r["cmd"]),
+        #             "respuesta": encrypt(respuesta),
+        #         })
 
-            # enviar_resultado(response, token)
-            saveLog(json.dumps(response), "stats")
-            saveData(response)
-            return response
+        #     # enviar_resultado(response, token)
+        #     saveLog(json.dumps(response), "stats")
+        #     saveData(response)
+        #     return response
         elif (action == "logs"):
-            # response = await traer_logs(idcliente, idservidor)
             fecha = identificador["fecha"]
-            response = traer_logs(idcliente, idservidor, fecha)
-            saveLog(json.dumps(response), "logs")
-            saveData(response)
+            idusuario_select = identificador["idusuario_select"]
+            result = traer_logs(idcliente, idservidor, fecha, idusuario_select)
+            status = result["status"]
+            data = result["data"]
+            response = {
+                "action": action,
+                "identificador": identificador,
+                "data": data,
+                "status": status,
+                "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            saveLog(f"Fecha={fecha} Usuario={idusuario_select} resultado={status} registros={len(data)}", "logs", True)
             return response 
         elif (action == "statserver"):
             fecha = identificador["fecha"]
             result = statsServer(idcliente, idservidor, idusuario, fecha)
             response = {
-                "action": request["action"],
-                "identificador": request["identificador"],
+                "action": action,
+                "identificador": identificador,
                 "data": result,
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
-            saveLog(json.dumps(response), "statserver")
-            saveData(response)
+            # saveLog(json.dumps(response), "statserver")
+            saveLog(f"Fecha={fecha} Usuario={idusuario_select} resultado={json.dumps(result)}  registros={len(result)}", "statserver", True)
+            # saveData(response)
             return response
 
         return response

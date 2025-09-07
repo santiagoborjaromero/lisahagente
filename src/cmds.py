@@ -11,6 +11,12 @@ from src.entities.hcommand import HCommand
 # from src.mongodb import db
 # from src.postgresql import conn
 
+def dondeGuardaLogs():
+  path_folder_log = "/var/log/sentinel"
+  if not os.path.exists(path_folder_log):
+     os.makedirs(path_folder_log)
+  return path_folder_log
+
 def ejecutar_comando(comando, usuario="soft8"):
   # newcomand = f"sudo -u {usuario} {comando}"
   newcomand = f"sudo {comando}"
@@ -43,18 +49,7 @@ def ejecutar_comando(comando, usuario="soft8"):
 # FILES
 #
 def saveData(fuente):
-  config = configparser.ConfigParser()
-  current_directory = os.getcwd()
-  file_ini = f"{current_directory}/sentinel.ini"
-
-  path_folder_log = ""
-
-  if os.path.exists(file_ini):
-    config.read(file_ini)
-    path_folder_log = config.get("APP", "logs")
-  else:
-    print("The file does not exist.")
-    return
+  path_folder_log = dondeGuardaLogs()
 
   fecha_file =  datetime.now().strftime("%Y%m%d")
   fecha =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -89,33 +84,49 @@ def enviar_resultado(ddata, token):
   print("")
 
 
-def traer_logs(idcliente, idservidor, fecha):
+# def traer_logs(idcliente, idservidor, fecha, idusuario_select):
 
-  print(idcliente, idservidor, fecha)
+#   print(idcliente, idservidor, fecha, idusuario_select)
 
-  # config = configparser.ConfigParser()
-  # current_directory = os.getcwd()
-  # file_ini = f"{current_directory}/sentinel.ini"
+#   path_folder_log = dondeGuardaLogs()
+#   fecha_file =  fecha.replace("-", "")
+#   contenido = os.listdir(path_folder_log)
 
-  # path_folder_log = ""
+#   data = []
+#   status = True
+#   string_data = ""
 
-  # if os.path.exists(file_ini):
-  #   config.read(file_ini)
-  #   path_folder_log = config.get("APP", "logs")
-  # else:
-  #   print("The file does not exist.")
-  #   return
+#   try:
+#     for fichero in contenido:
+#       if os.path.isfile(os.path.join(path_folder_log, fichero)) and fichero.endswith('.lisah'):
+#         if fecha_file in fichero:
+#           print(f"Abriendo {fichero}")
+#           with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
+#             for linea in archivo:
+#               content = json.loads(  base64.b64decode(linea) ) 
+#               if idusuario_select != 0:
+#                 if content["idusuario"] == idusuario_select:
+#                   data.append( content )
+#               else:
+#                 data.append( content )
 
-  path_folder_log = "/var/log/sentinel"
-  if not os.path.exists(path_folder_log):
-     os.makedirs(path_folder_log)
+#   except Exception as err:
+#     status = False
+#     data = []
 
-  # fecha_file =  datetime.now().strftime("%Y%m%d")
+#   print(len(data))
+#   return {"status": status, "data": data}
+
+
+def traer_logs(idcliente, idservidor, fecha, idusuario):
+  print(idcliente, idservidor, fecha, idusuario)
+
   fecha_file =  fecha.replace("-", "")
-
+  path_folder_log = dondeGuardaLogs()
   contenido = os.listdir(path_folder_log)
 
   data = []
+  datatemp = []
   status = True
 
   try:
@@ -125,38 +136,27 @@ def traer_logs(idcliente, idservidor, fecha):
           print(f"Abriendo {fichero}")
           with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
             for linea in archivo:
-              data.append( json.loads( base64.b64decode(linea) ) )
+              try:
+                content = json.loads( base64.b64decode(linea) )
+                if (idusuario == "0"):
+                  data.append(content)  
+                else:
+                  if content["idusuario"] == int(idusuario):
+                    data.append(content)  
+              except Exception as err:
+                status = False
+                data = err
+                print(f"Error traer log: {err}")
   except Exception as err:
     status = False
-    data = []
+    data = err
 
   return {"status": status, "data": data}
 
 
 def statsServer(idcliente, idservidor, idusuario, fecha):
-
-  # print(idcliente, idservidor, fecha)
-
-  # config = configparser.ConfigParser()
-  # current_directory = os.getcwd()
-  # file_ini = f"{current_directory}/sentinel.ini"
-
-  # path_folder_log = ""
-
-  # if os.path.exists(file_ini):
-  #   config.read(file_ini)
-  #   path_folder_log = config.get("APP", "logs")
-  # else:
-  #   print("The file does not exist.")
-  #   return
-
-  # fecha_file =  datetime.now().strftime("%Y%m%d")
   fecha_file =  fecha.replace("-", "")
-
-  path_folder_log = "/var/log/sentinel"
-  if not os.path.exists(path_folder_log):
-     os.makedirs(path_folder_log)
-
+  path_folder_log = dondeGuardaLogs()
   contenido = os.listdir(path_folder_log)
 
   data = []
@@ -313,27 +313,18 @@ def statsServer(idcliente, idservidor, idusuario, fecha):
 
 
 
-def saveLog(data, level="INFO"):
-  config = configparser.ConfigParser()
-  current_directory = os.getcwd()
-  file_ini = f"{current_directory}/sentinel.ini"
-
-  path_folder_log = ""
-
-  if os.path.exists(file_ini):
-    config.read(file_ini)
-    path_folder_log = config.get("APP", "logs")
-    # print(path_folder_log)
-  else:
-    print("The file does not exist.")
-    return
-
+def saveLog(data, level="INFO", audit=False):
+  path_folder_log = dondeGuardaLogs()
 
   fecha_file =  datetime.now().strftime("%Y%m%d")
   fecha =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-  file = f"{path_folder_log}/lisah-sentinel-{fecha_file}.log"
+  if (audit):
+    ext = "audit"
+  else:
+    ext = "log"
 
+  file = f"{path_folder_log}/lisah-sentinel-{fecha_file}.{ext}" 
 
   if not os.path.exists(path_folder_log):
     os.makedirs(path_folder_log)

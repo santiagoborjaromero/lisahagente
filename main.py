@@ -27,8 +27,8 @@ async def websocket_endpoint(websocket: WebSocket, token:str):
         except WebSocketDisconnect:
             active_connections.remove(websocket)
             print(f"Cliente desconectado. Quedan: {len(active_connections)}")
-        except Exception as e:
-            print(f"Error con cliente: {e}")
+        except Exception as err:
+            print(f"Error: {err}")
             active_connections.remove(websocket)
     else:
         await websocket.send_text("TOKEN NO VALIDO")
