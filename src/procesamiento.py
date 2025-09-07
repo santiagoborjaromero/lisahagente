@@ -140,7 +140,7 @@ class Procesamiento:
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             # saveLog(json.dumps(response), "statserver")
-            saveLog(f"Fecha={fecha} Usuario={idusuario_select} resultado={json.dumps(result)}  registros={len(result)}", "statserver", True)
+            saveLog(f"Fecha={fecha} Usuario={idusuario} resultado={json.dumps(result)}  registros={len(result)}", "statserver", True)
             # saveData(response)
             return response
 

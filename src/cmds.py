@@ -177,10 +177,10 @@ def statsServer(idcliente, idservidor, idusuario, fecha):
               content =  json.loads( base64.b64decode(linea) )
               if content["idusuario"] == idusuario:
                   count = count + 1
-              # datatemp.append( json.loads( base64.b64decode(linea) ) )
   except Exception as err:
     status = False
-    data = []
+    count = 0
+    total = 0
 
   return [count, total]
 
