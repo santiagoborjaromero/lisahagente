@@ -155,7 +155,17 @@ def traer_logs(idcliente, idservidor, fecha, idusuario):
 
 
 def statsServer(idcliente, idservidor, idusuario, fecha):
-  fecha_file =  fecha.replace("-", "")
+  # fecha_antes =  fecha.replace("-", "")
+  # fecha_file =  fecha.replace("-", "")
+
+  ahora = datetime.now()
+  anio_actual = ahora.year
+  mes_actual = ahora.month
+  mes_anterior = ahora.month - 1
+
+  fecha_file = f"{anio_actual}{mes_actual:0>2}"
+  fecha_antes = f"{anio_actual}{mes_anterior:0>2}"
+
   path_folder_log = dondeGuardaLogs()
   contenido = os.listdir(path_folder_log)
 
@@ -163,12 +173,22 @@ def statsServer(idcliente, idservidor, idusuario, fecha):
   datatemp = []
   status = True
 
+  count_antes = 0
+  total_antes = 0
   count = 0
   total = 0
 
   try:
     for fichero in contenido:
       if os.path.isfile(os.path.join(path_folder_log, fichero)) and fichero.endswith('.lisah'):
+        if fecha_antes in fichero:
+          print(f"Abriendo {fichero} antes")
+          with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
+            for linea in archivo:
+              total_antes = total_antes + 1
+              content =  json.loads( base64.b64decode(linea) )
+              if content["idusuario"] == idusuario:
+                  count_antes = count_antes + 1
         if fecha_file in fichero:
           print(f"Abriendo {fichero}")
           with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
@@ -182,7 +202,9 @@ def statsServer(idcliente, idservidor, idusuario, fecha):
     count = 0
     total = 0
 
-  return [count, total]
+  print([count, total, count_antes, total_antes])
+
+  return [count, total, count_antes, total_antes]
 
 
 #
