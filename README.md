@@ -25,6 +25,5 @@ pip install typer;
 pip install typing-inspection;
 pip install typing_extensions;
 pip install motor;
-pip install asyncio;
 pip install bcrypt;
 ```

@@ -5,7 +5,6 @@ from src.functions import encrypt, decrypt
 from concurrent.futures import thread
 import json
 import threading
-# import asyncio
 from datetime import datetime
 
 class Procesamiento:
