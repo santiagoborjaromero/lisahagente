@@ -1,6 +1,6 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.websockets import WebSocketDisconnect
-import asyncio
+# import asyncio
 from src.procesamiento import Procesamiento
 from src.cmds import saveLog
 from src.functions import decrypt, validate_token
