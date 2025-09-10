@@ -1,5 +1,5 @@
 import threading
-from src.entities.request import Request, Data
+from src.entities.request import Request
 from src.cmds import ejecutar_comando, enviar_resultado, saveLog, traer_logs, saveData, statsServer
 from src.functions import encrypt, decrypt
 from concurrent.futures import thread
