@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, Field
 
 class Data(BaseModel):
     id: int = None
