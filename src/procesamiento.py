@@ -131,7 +131,8 @@ class Procesamiento:
             return response 
         elif (action == "statserver"):
             fecha = identificador["fecha"]
-            result = statsServer(idcliente, idservidor, idusuario, fecha)
+            idusuario_filtro = identificador["idusuario_filtro"]
+            result = statsServer(idcliente, idservidor, idusuario_filtro, fecha)
             response = {
                 "action": action,
                 "identificador": identificador,

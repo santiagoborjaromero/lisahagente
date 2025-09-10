@@ -209,6 +209,7 @@ def statsServer(idcliente, idservidor, idusuario, fecha):
     count_antes = total_antes
 
 
+  print("Usuario", idusuario)
   print([count, total, count_antes, total_antes])
 
   return [count, total, count_antes, total_antes]
