@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field, field_serializer, PydanticUserError
+from pydantic import BaseModel, PydanticUserError
 
 try:
     class HCommand(BaseModel):
