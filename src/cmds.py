@@ -187,20 +187,27 @@ def statsServer(idcliente, idservidor, idusuario, fecha):
             for linea in archivo:
               total_antes = total_antes + 1
               content =  json.loads( base64.b64decode(linea) )
-              if content["idusuario"] == idusuario:
-                  count_antes = count_antes + 1
+              if idusuario!=0 and content["idusuario"] == idusuario:
+                count_antes = count_antes + 1
+
         if fecha_file in fichero:
           print(f"Abriendo {fichero}")
           with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
             for linea in archivo:
               total = total + 1
               content =  json.loads( base64.b64decode(linea) )
-              if content["idusuario"] == idusuario:
-                  count = count + 1
+              if idusuario!=0 and content["idusuario"] == idusuario:
+                count = count + 1
+
   except Exception as err:
     status = False
     count = 0
     total = 0
+
+  if idusuario == 0:
+    count = total
+    count_antes = total_antes
+
 
   print([count, total, count_antes, total_antes])
 
