@@ -6,10 +6,11 @@ from concurrent.futures import thread
 import json
 import threading
 from datetime import datetime
+from typing import Any
 
 class Procesamiento:
 
-    async def clasificacion(info: Request, token:str):
+    async def clasificacion(info: Any, token:str):
         request = json.loads(info)
         # saveLog(json.dumps(request), "JSON")
 
