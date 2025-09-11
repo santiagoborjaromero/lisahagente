@@ -12,6 +12,7 @@ class Procesamiento:
 
     async def clasificacion(info: Any, token:str):
         request = json.loads(info)
+        print(request)
         # saveLog(json.dumps(request), "JSON")
 
         descrypt_token  = json.loads(decrypt(token))
@@ -116,9 +117,11 @@ class Procesamiento:
         #     saveData(response)
         #     return response
         elif (action == "logs"):
-            fecha = identificador["fecha"]
+            fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            fecha_desde = identificador["fecha_desde"]
+            fecha_hasta = identificador["fecha_hasta"]
             idusuario_select = identificador["idusuario_select"]
-            result = traer_logs(idcliente, idservidor, fecha, idusuario_select)
+            result = traer_logs(idcliente, idservidor, fecha_desde, fecha_hasta, idusuario_select)
             status = result["status"]
             data = result["data"]
             response = {
@@ -126,7 +129,7 @@ class Procesamiento:
                 "identificador": identificador,
                 "data": data,
                 "status": status,
-                "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "date": fecha
             }
             saveLog(f"Fecha={fecha} Usuario={idusuario_select} resultado={status} registros={len(data)}", "logs", True)
             return response 

@@ -6,8 +6,8 @@ import time
 import base64
 import configparser
 import os
-from datetime import datetime
-from src.entities.hcommand import HCommand
+from datetime import datetime, timedelta
+# from src.entities.hcommand import HCommand
 # from src.mongodb import db
 # from src.postgresql import conn
 
@@ -117,11 +117,21 @@ def enviar_resultado(ddata, token):
 #   print(len(data))
 #   return {"status": status, "data": data}
 
+def rango_fechas (fecha_desde, fecha_hasta):
+  lista_fechas = []
+  diff = fecha_hasta - fecha_desde
+  for i in range(diff.days + 1):
+    dia = fecha_desde + timedelta(days=i)
+    lista_fechas.append(dia.strftime("%Y%m%d"))
+  return lista_fechas
 
-def traer_logs(idcliente, idservidor, fecha, idusuario):
-  print(idcliente, idservidor, fecha, idusuario)
+def traer_logs(idcliente, idservidor, fecha_d, fecha_h, idusuario):
 
-  fecha_file =  fecha.replace("-", "")
+  fechaini = datetime.strptime(f"{fecha_d}", "%Y-%m-%d").date()
+  fechafin = datetime.strptime(f"{fecha_h}", "%Y-%m-%d").date()
+
+  fechas_rango = rango_fechas(fechaini, fechafin)
+
   path_folder_log = dondeGuardaLogs()
   contenido = os.listdir(path_folder_log)
 
@@ -132,21 +142,24 @@ def traer_logs(idcliente, idservidor, fecha, idusuario):
   try:
     for fichero in contenido:
       if os.path.isfile(os.path.join(path_folder_log, fichero)) and fichero.endswith('.lisah'):
-        if fecha_file in fichero:
-          print(f"Abriendo {fichero}")
-          with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
-            for linea in archivo:
-              try:
-                content = json.loads( base64.b64decode(linea) )
-                if (idusuario == "0"):
-                  data.append(content)  
-                else:
-                  if content["idusuario"] == int(idusuario):
+
+        for fecha_file in fechas_rango:
+          if fecha_file in fichero:
+            print(f"Abriendo {fichero}")
+            with open(path_folder_log + "/" + fichero, 'r', encoding='utf-8') as archivo:
+              for linea in archivo:
+                try:
+                  content = json.loads( base64.b64decode(linea) )
+                  if idusuario == 0:
                     data.append(content)  
-              except Exception as err:
-                status = False
-                data = err
-                print(f"Error traer log: {err}")
+                  else:
+                    if content["idusuario"] == idusuario:
+                      data.append(content)  
+
+                except Exception as err:
+                  status = False
+                  data = err
+                  print(f"Error traer log: {err}")
   except Exception as err:
     status = False
     data = err
